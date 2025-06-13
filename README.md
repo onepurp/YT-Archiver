@@ -27,7 +27,7 @@ YTM-Archiver is a robust, autonomous Python script that continuously archives al
 
 ### 1. Clone the Repository
 ```sh
-git https://github.com/onepurp/YTM-Archiver
+git clone https://github.com/onepurp/YTM-Archiver
 cd YTM-Archiver
 ```
 
