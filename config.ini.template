@@ -1,0 +1,20 @@
+[YouTube]
+# YouTube channel URL or ID (e.g., https://www.youtube.com/channel/UCxxxx or UCxxxx)
+channel_url = 
+# Optional: YouTube Data API v3 key (recommended for reliability)
+youtube_api_key = 
+
+[Mega]
+# Mega.nz login credentials (do not use your main password for automation if possible)
+email = 
+password = 
+# Target folder path in Mega.nz (e.g., /YTM-Archive)
+target_folder = 
+
+[Archiver]
+# Polling interval in minutes (how often to check for new videos)
+polling_interval = 60
+# Directory for temporary downloads (default: ./downloads)
+download_dir = ./downloads
+# Log file location (default: ./archiver.log)
+log_file = ./archiver.log

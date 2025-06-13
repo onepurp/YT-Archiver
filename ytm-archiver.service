@@ -1,0 +1,14 @@
+[Unit]
+Description=YouTube-to-Mega Archival System (YTM-Archiver)
+After=network.target
+
+[Service]
+Type=simple
+WorkingDirectory=/home/khalid/Documents/Coding/2025/Youtube-Mega_Sync
+ExecStart=/usr/bin/python3 /home/khalid/Documents/Coding/2025/Youtube-Mega_Sync/main.py
+Restart=always
+RestartSec=10
+User=%i
+
+[Install]
+WantedBy=multi-user.target
