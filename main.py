@@ -30,7 +30,17 @@ def main():
     youtube_api_key = config['YouTube'].get('youtube_api_key', None)
     email = config['Mega']['email']
     password = config['Mega']['password']
-    target_folder = config['Mega']['target_folder']
+    parent_folder = 'YouTubeBackups'
+    # Extract channel name from URL for folder naming
+    import re
+    channel_url = config['YouTube']['channel_url']
+    match = re.search(r'(?:/c/|/user/|/channel/|@)([\w\-]+)', channel_url)
+    if match:
+        channel_name = match.group(1)
+    else:
+        channel_name = 'UnknownChannel'
+    # Optionally sanitize channel_name for filesystem
+    channel_name = re.sub(r'[^\w\- ]', '_', channel_name)
     polling_interval = config.getint('Archiver', 'polling_interval', fallback=60)
     download_dir = config.get('Archiver', 'download_dir', fallback='./downloads')
     os.makedirs(download_dir, exist_ok=True)
@@ -38,7 +48,7 @@ def main():
     # Initialize modules
     state_db = StateManager()
     yt = YouTubeHandler(channel_url, api_key=youtube_api_key)
-    mega = MegaHandler(email, password, target_folder)
+    mega = MegaHandler(email, password, parent_folder, channel_name)
 
     # Initial Sync
     logger.info("Starting initial sync (full channel scan)...")
@@ -50,7 +60,7 @@ def main():
         published_at = video.get('publishedAt', '')
         if not state_db.is_archived(video_id):
             logger.info(f"Archiving new video: {title} ({video_id})")
-            video_path = yt.download_video(video_id, download_dir)
+            video_path = yt.download_video(video_id, title, download_dir)
             if video_path and mega.upload_file(video_path):
                 state_db.add_archived(video_id, title, published_at)
                 try:
@@ -72,7 +82,7 @@ def main():
                 published_at = video.get('publishedAt', '')
                 if not state_db.is_archived(video_id):
                     logger.info(f"New video detected: {title} ({video_id})")
-                    video_path = yt.download_video(video_id, download_dir)
+                    video_path = yt.download_video(video_id, title, download_dir)
                     if video_path and mega.upload_file(video_path):
                         state_db.add_archived(video_id, title, published_at)
                         try:

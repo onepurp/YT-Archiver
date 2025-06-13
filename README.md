@@ -32,6 +32,24 @@ cd YTM-Archiver
 ```
 
 ### 2. Install Dependencies
+
+**Install Python 3.10+ (if not already installed)**
+- Linux: `sudo apt install python3.10 python3.10-venv`
+- macOS: `brew install python@3.10`
+- Windows: [Download from python.org](https://www.python.org/downloads/release/python-3100/)
+
+**Install ffmpeg (required for video merging):**
+- Linux: `sudo apt install ffmpeg`
+- macOS: `brew install ffmpeg`
+- Windows: [Download from ffmpeg.org](https://ffmpeg.org/download.html) and add to PATH
+
+**Create and activate a virtual environment:**
+```sh
+python3.10 -m venv venv
+source venv/bin/activate  # On Windows: venv\Scripts\activate
+```
+
+**Install Python dependencies:**
 ```sh
 pip install -r requirements.txt
 ```

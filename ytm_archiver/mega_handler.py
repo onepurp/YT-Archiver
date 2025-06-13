@@ -4,10 +4,11 @@ import os
 import time
 
 class MegaHandler:
-    def __init__(self, email: str, password: str, target_folder: str):
+    def __init__(self, email: str, password: str, parent_folder: str, channel_name: str):
         self.email = email
         self.password = password
-        self.target_folder = target_folder
+        self.parent_folder = parent_folder
+        self.channel_name = channel_name
         self.logger = logging.getLogger(__name__)
         self.mega = None
         self.folder_node = None
@@ -18,7 +19,9 @@ class MegaHandler:
         while retry < 5:
             try:
                 self.mega = Mega().login(self.email, self.password)
-                self.folder_node = self._get_or_create_folder(self.target_folder)
+                # Compose full path: parent_folder/channel_name
+                full_folder = f"{self.parent_folder.strip('/')}/{self.channel_name.strip()}"
+                self.folder_node = self._get_or_create_folder(full_folder)
                 return
             except Exception as e:
                 retry += 1

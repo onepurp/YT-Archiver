@@ -65,10 +65,15 @@ class YouTubeHandler:
             self.logger.error(f"yt-dlp error fetching video list: {e}")
             return []
 
-    def download_video(self, video_id: str, output_dir: str) -> Optional[str]:
+    def sanitize_filename(title: str) -> str:
+        # Remove or replace characters that are invalid in filenames
+        return re.sub(r'[\\/:*?"<>|]', '_', title)
+
+    def download_video(self, video_id: str, title: str, output_dir: str) -> Optional[str]:
         url = f"https://www.youtube.com/watch?v={video_id}"
+        safe_title = self.sanitize_filename(title)
         ydl_opts = {
-            'outtmpl': f'{output_dir}/%(id)s.%(ext)s',
+            'outtmpl': f'{output_dir}/{safe_title} [%(id)s].%(ext)s',
             'format': 'bestvideo+bestaudio/best',
             'merge_output_format': 'mp4',
             'quiet': True,
@@ -77,11 +82,18 @@ class YouTubeHandler:
             'continuedl': True,
             'sleep_interval_requests': 2,
             'max_sleep_interval_requests': 5,
+            'postprocessors': [{
+                'key': 'FFmpegMetadata',
+            }],
+            'forcefilename': True,
+            'progress_hooks': [],
+            'windowsfilenames': True,
+            'restrictfilenames': False,
+            'consoletitle': False,
         }
         try:
             with yt_dlp.YoutubeDL(ydl_opts) as ydl:
                 result = ydl.extract_info(url, download=True)
-                # yt-dlp returns the path as 'filepath'
                 filename = ydl.prepare_filename(result)
                 return filename
         except Exception as e:
