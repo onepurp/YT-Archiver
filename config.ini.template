@@ -8,7 +8,7 @@ youtube_api_key =
 # Mega.nz login credentials (do not use your main password for automation if possible)
 email = 
 password = 
-# Target folder path in Mega.nz (e.g., /YTM-Archive)
+# Target folder path in Mega.nz (must already exist, e.g., /YouTubeBackups/ChannelName)
 target_folder = 
 
 [Archiver]

@@ -30,17 +30,7 @@ def main():
     youtube_api_key = config['YouTube'].get('youtube_api_key', None)
     email = config['Mega']['email']
     password = config['Mega']['password']
-    parent_folder = 'YouTubeBackups'
-    # Extract channel name from URL for folder naming
-    import re
-    channel_url = config['YouTube']['channel_url']
-    match = re.search(r'(?:/c/|/user/|/channel/|@)([\w\-]+)', channel_url)
-    if match:
-        channel_name = match.group(1)
-    else:
-        channel_name = 'UnknownChannel'
-    # Optionally sanitize channel_name for filesystem
-    channel_name = re.sub(r'[^\w\- ]', '_', channel_name)
+
     polling_interval = config.getint('Archiver', 'polling_interval', fallback=60)
     download_dir = config.get('Archiver', 'download_dir', fallback='./downloads')
     os.makedirs(download_dir, exist_ok=True)
@@ -48,7 +38,7 @@ def main():
     # Initialize modules
     state_db = StateManager()
     yt = YouTubeHandler(channel_url, api_key=youtube_api_key)
-    mega = MegaHandler(email, password, parent_folder, channel_name)
+    mega = MegaHandler(email, password, config['Mega']['target_folder'])
 
     # Initial Sync
     logger.info("Starting initial sync (full channel scan)...")
