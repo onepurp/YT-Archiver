@@ -27,8 +27,8 @@ YTM-Archiver is a robust, autonomous Python script that continuously archives al
 
 ### 1. Clone the Repository
 ```sh
-git clone <your_repo_url>
-cd Youtube-Mega_Sync
+git https://github.com/onepurp/YTM-Archiver
+cd YTM-Archiver
 ```
 
 ### 2. Install Dependencies
