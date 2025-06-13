@@ -72,6 +72,9 @@ class MegaHandler:
         return parent
 
     def upload_file(self, filepath: str):
+        if not self.mega:
+            self.logger.error("Cannot upload: Not logged in to Mega.nz (self.mega is None).")
+            return False
         retry = 0
         while retry < 5:
             try:

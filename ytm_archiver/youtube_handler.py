@@ -65,13 +65,14 @@ class YouTubeHandler:
             self.logger.error(f"yt-dlp error fetching video list: {e}")
             return []
 
+    @staticmethod
     def sanitize_filename(title: str) -> str:
         # Remove or replace characters that are invalid in filenames
         return re.sub(r'[\\/:*?"<>|]', '_', title)
 
     def download_video(self, video_id: str, title: str, output_dir: str) -> Optional[str]:
         url = f"https://www.youtube.com/watch?v={video_id}"
-        safe_title = self.sanitize_filename(title)
+        safe_title = YouTubeHandler.sanitize_filename(title)
         ydl_opts = {
             'outtmpl': f'{output_dir}/{safe_title} [%(id)s].%(ext)s',
             'format': 'bestvideo+bestaudio/best',
