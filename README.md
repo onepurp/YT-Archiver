@@ -34,7 +34,7 @@ cd YTM-Archiver
 ### 2. Install Dependencies
 
 **Install Python 3.10+ (if not already installed)**
-- Linux: `sudo apt install python3.10 python3.10-venv`
+- Linux: `sudo apt install python3.10 python3.10-venv` _(Note: If python3.10 is not available in the default repositories, you can add the 'deadsnakes' PPA which contains multiple versions of python: `sudo add-apt-repository ppa:deadsnakes/ppa`)_
 - macOS: `brew install python@3.10`
 - Windows: [Download from python.org](https://www.python.org/downloads/release/python-3100/)
 
