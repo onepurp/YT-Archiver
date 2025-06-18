@@ -1,0 +1,39 @@
+
+### **Linux (systemd)** - The Gold Standard
+
+Your `systemd` approach is the modern, correct way to manage services on most Linux distributions.
+
+*   **Correctness:** The commands (`cp`, `daemon-reload`, `enable`, `start`, `status`) are exactly right.
+*   **Best Practice:** This is far superior to older methods like `init.d` scripts or running things in `tmux` or `screen` for a true service, because `systemd` handles logging, restarts, and dependencies automatically.
+*   **Enhancement:** Inside your `yt-archiver.service` file, you should absolutely include a `[Service]` directive like `Restart=always` or `Restart=on-failure`. This tells `systemd` to automatically restart your script if it ever crashes, which is the key to making it truly "run forever."
+
+**Example `yt-archiver.service` block:**
+```ini
+[Service]
+User=your_username
+WorkingDirectory=/path/to/your/script/folder
+ExecStart=/usr/bin/python3 /path/to/your/script/main.py
+Restart=always
+RestartSec=10
+```
+
+### **Windows (Task Scheduler)** - The Native Solution
+
+Using Task Scheduler is the canonical way to do this on Windows.
+
+*   **Correctness:** Your plan is solid.
+*   **Best Practice:** You correctly identified the key settings: trigger, action, and conditions. Using `pythonw.exe` instead of `python.exe` is a pro move to prevent a console window from popping up. Setting the "Start in" (Working Directory) field is also critical and often forgotten.
+*   **Clarification on Trigger:**
+    *   If `main.py` is a script that runs continuously in a loop (e.g., `while True:`), your trigger should simply be **"At startup"**.
+    *   If `main.py` is a script that runs, does a task, and then exits, your trigger **"At startup"** combined with **"Repeat task every X minutes"** is perfect.
+
+### **macOS (launchd)** - The Apple Way
+
+Your `launchd` plan is the correct, modern approach for macOS.
+
+*   **Correctness:** The file, paths, and commands (`cp`, `launchctl load`, `launchctl start`) are all correct.
+*   **Best Practice:** This is the Apple-sanctioned replacement for `cron` and other methods. It's powerful and integrates directly with the OS.
+*   **Key Distinction (for your reference):**
+    *   `~/Library/LaunchAgents`: You chose this correctly. It runs the task as your user, **when you log in**.
+    *   `/Library/LaunchDaemons`: If you ever needed a script to run at system boot (even if no user logs in), you would place the `.plist` file here and have it run as `root` or another system user.
+
