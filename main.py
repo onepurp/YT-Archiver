@@ -3,6 +3,7 @@ import sys
 import time
 import logging
 import signal
+import shutil
 from concurrent.futures import ThreadPoolExecutor, as_completed
 import configparser
 from pathlib import Path
@@ -65,6 +66,7 @@ def main():
     # Thread pool settings
     max_workers = config.getint('Archiver', 'max_workers', fallback=4)
     max_retries = config.getint('Archiver', 'max_retries', fallback=3)
+    min_free_gb = config.getint('Archiver', 'min_free_gb', fallback=5)
 
     def archive_video(video_dict):
         """Download, upload and record a single video with retry logic."""
@@ -76,6 +78,11 @@ def main():
         retries = 0
         while retries < max_retries and not shutdown_requested:
             logger.info(f"Archiving {tit} ({vid}) [attempt {retries+1}/{max_retries}]")
+            # Check free disk space before downloading
+            free_bytes = shutil.disk_usage(download_dir).free
+            if free_bytes < min_free_gb * 1024 ** 3:
+                logger.error(f"Skipping {vid}: Not enough free space (available {free_bytes/1024**3:.2f} GB)")
+                return f"Insufficient space for {vid}", False
             video_path = yt.download_video(vid, tit, download_dir)
             ok = video_path and rclone.upload_file(video_path)
             if ok:
