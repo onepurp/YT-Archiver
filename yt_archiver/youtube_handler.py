@@ -19,7 +19,8 @@ class VideoInfo:
     resolution: Optional[str] = None
 
 class YouTubeHandler:
-    def __init__(self, channel_url: str, api_key: Optional[str] = None, max_workers: int = 3):
+    def __init__(self, channel_url: str, api_key: Optional[str] = None, 
+                 max_workers: int = 3, format: str = 'best'):
         """
         Initialize YouTube handler.
         
@@ -27,10 +28,12 @@ class YouTubeHandler:
             channel_url: YouTube channel URL or ID
             api_key: Optional YouTube Data API v3 key
             max_workers: Maximum number of concurrent downloads (1-5)
+            format: Video format/quality preference (default: 'best')
         """
         self.channel_url = channel_url
         self.api_key = api_key
         self.max_workers = max(1, min(max_workers, 5))  # Limit max workers to 5
+        self.format = format
         self.logger = logging.getLogger(__name__)
         self._last_api_call = datetime.min
         self._rate_limit_delay = 1.0  # Start with 1 second delay between API calls
@@ -273,7 +276,7 @@ class YouTubeHandler:
             return {}
     
     def download_video(self, video_id: str, title: str, output_dir: str, 
-                      quality: str = 'best', max_retries: int = 3) -> Optional[str]:
+                      max_retries: int = 3) -> Optional[str]:
         """
         Download a single video.
         
@@ -281,7 +284,6 @@ class YouTubeHandler:
             video_id: YouTube video ID
             title: Video title (for filename)
             output_dir: Directory to save the video
-            quality: Video quality preference (best, 1080p, 720p, etc.)
             max_retries: Maximum number of download retries
             
         Returns:
@@ -290,8 +292,8 @@ class YouTubeHandler:
         url = f"https://www.youtube.com/watch?v={video_id}"
         safe_title = self.sanitize_filename(title)
         
-        # Format selection based on quality preference
-        format_selector = self._get_format_selector(quality)
+        # Format selection based on instance format
+        format_selector = self._get_format_selector(self.format)
         
         ydl_opts = {
             'outtmpl': f"{output_dir}/{safe_title} [{video_id}].%(ext)s",
@@ -354,14 +356,13 @@ class YouTubeHandler:
         return None
     
     def download_videos(self, video_infos: List[VideoInfo], output_dir: str, 
-                        quality: str = 'best', max_workers: Optional[int] = None) -> Dict[str, str]:
+                        max_workers: Optional[int] = None) -> Dict[str, str]:
         """
         Download multiple videos in parallel.
         
         Args:
             video_infos: List of VideoInfo objects
             output_dir: Directory to save the videos
-            quality: Video quality preference (best, 1080p, 720p, etc.)
             max_workers: Maximum number of concurrent downloads
             
         Returns:
@@ -382,8 +383,7 @@ class YouTubeHandler:
                     self.download_video, 
                     video.video_id, 
                     video.title, 
-                    output_dir,
-                    quality
+                    output_dir
                 ): video.video_id 
                 for video in video_infos
             }
