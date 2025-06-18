@@ -74,8 +74,8 @@ rclone rmdir remote:/test
 
 ### 1. Clone the Repository
 ```sh
-git clone https://github.com/onepurp/YTM-Archiver
-cd YTM-Archiver
+git clone https://github.com/onepurp/YT-Archiver
+cd YT-Archiver
 ```
 
 ### 2. Install Dependencies
@@ -135,16 +135,16 @@ python3 main.py
 ## Running as a Background Service
 
 ### Linux (systemd)
-1. Edit `ytm-archiver.service`:
+1. Edit `yt-archiver.service`:
     - Set `WorkingDirectory` and `ExecStart` paths as needed.
     - Set `User` to your username.
 2. Copy the file:
     ```sh
-    sudo cp ytm-archiver.service /etc/systemd/system/ytm-archiver.service
+    sudo cp yt-archiver.service /etc/systemd/system/yt-archiver.service
     sudo systemctl daemon-reload
-    sudo systemctl enable ytm-archiver
-    sudo systemctl start ytm-archiver
-    sudo systemctl status ytm-archiver
+    sudo systemctl enable yt-archiver
+    sudo systemctl start yt-archiver
+    sudo systemctl status yt-archiver
     ```
 
 ### Windows (Task Scheduler)
@@ -155,13 +155,13 @@ python3 main.py
     - **Working Directory**: Set to the script folder.
 
 ### macOS (launchd)
-1. Edit `ytm-archiver.plist`:
+1. Edit `yt-archiver.plist`:
     - Set all paths to your user directory and Python installation.
 2. Copy and load:
     ```sh
-    cp ytm-archiver.plist ~/Library/LaunchAgents/com.ytm-archiver.plist
-    launchctl load ~/Library/LaunchAgents/com.ytm-archiver.plist
-    launchctl start com.ytm-archiver
+    cp ytm-archiver.plist ~/Library/LaunchAgents/com.yt-archiver.plist
+    launchctl load ~/Library/LaunchAgents/com.yt-archiver.plist
+    launchctl start com.yt-archiver
     ```
 
 ---
