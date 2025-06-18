@@ -3,10 +3,11 @@ import sys
 import time
 import logging
 import configparser
+from pathlib import Path
 from ytm_archiver.logging_setup import setup_logging
 from ytm_archiver.state_manager import StateManager
 from ytm_archiver.youtube_handler import YouTubeHandler
-from ytm_archiver.mega_handler import MegaHandler
+from ytm_archiver.rclone_handler import RcloneHandler
 
 CONFIG_FILE = 'config.ini'
 
@@ -28,8 +29,10 @@ def main():
     # Load config values
     channel_url = config['YouTube']['channel_url']
     youtube_api_key = config['YouTube'].get('youtube_api_key', None)
-    email = config['Mega']['email']
-    password = config['Mega']['password']
+    
+    # Rclone configuration
+    remote_name = config['Rclone'].get('remote_name', 'mega')
+    remote_path = config['Rclone'].get('remote_path', '')
 
     polling_interval = config.getint('Archiver', 'polling_interval', fallback=60)
     download_dir = config.get('Archiver', 'download_dir', fallback='./downloads')
@@ -38,7 +41,12 @@ def main():
     # Initialize modules
     state_db = StateManager()
     yt = YouTubeHandler(channel_url, api_key=youtube_api_key)
-    mega = MegaHandler(email, password, config['Mega']['target_folder'])
+    
+    # Initialize Rclone handler
+    rclone = RcloneHandler(remote_name=remote_name, remote_path=remote_path)
+    if not rclone.check_connection():
+        logger.error("Failed to connect to rclone remote. Please check your rclone configuration.")
+        sys.exit(1)
 
     # Initial Sync
     logger.info("Starting initial sync (full channel scan)...")
@@ -51,14 +59,18 @@ def main():
         if not state_db.is_archived(video_id):
             logger.info(f"Archiving new video: {title} ({video_id})")
             video_path = yt.download_video(video_id, title, download_dir)
-            if video_path and mega.upload_file(video_path):
+            if video_path and rclone.upload_file(video_path):
                 state_db.add_archived(video_id, title, published_at)
                 try:
                     os.remove(video_path)
+                    logger.debug(f"Removed temporary file: {video_path}")
                 except Exception as e:
                     logger.warning(f"Failed to remove temp file {video_path}: {e}")
             else:
                 logger.error(f"Failed to archive video {title} ({video_id}). Will retry on next run.")
+                # Keep the downloaded file for retry if it exists
+                if video_path and os.path.exists(video_path):
+                    logger.info(f"Keeping downloaded file for retry: {video_path}")
     logger.info("Initial sync complete.")
 
     # Continuous Monitoring Loop
@@ -73,14 +85,18 @@ def main():
                 if not state_db.is_archived(video_id):
                     logger.info(f"New video detected: {title} ({video_id})")
                     video_path = yt.download_video(video_id, title, download_dir)
-                    if video_path and mega.upload_file(video_path):
+                    if video_path and rclone.upload_file(video_path):
                         state_db.add_archived(video_id, title, published_at)
                         try:
                             os.remove(video_path)
+                            logger.debug(f"Removed temporary file: {video_path}")
                         except Exception as e:
                             logger.warning(f"Failed to remove temp file {video_path}: {e}")
                     else:
                         logger.error(f"Failed to archive video {title} ({video_id}). Will retry on next run.")
+                        # Keep the downloaded file for retry if it exists
+                        if video_path and os.path.exists(video_path):
+                            logger.info(f"Keeping downloaded file for retry: {video_path}")
             logger.info(f"Sleeping for {polling_interval} minutes...")
             time.sleep(polling_interval * 60)
         except Exception as e:

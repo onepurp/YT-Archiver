@@ -4,12 +4,11 @@ channel_url =
 # Optional: YouTube Data API v3 key (recommended for reliability)
 youtube_api_key = 
 
-[Mega]
-# Mega.nz login credentials (do not use your main password for automation if possible)
-email = 
-password = 
-# Target folder path in Mega.nz (must already exist, e.g., /YouTubeBackups/ChannelName)
-target_folder = 
+[Rclone]
+# Name of the rclone remote (must be pre-configured in rclone config)
+remote_name = mega
+# Optional: Remote path where videos will be stored (e.g., /YouTubeBackups/ChannelName)
+remote_path = 
 
 [Archiver]
 # Polling interval in minutes (how often to check for new videos)

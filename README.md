@@ -1,13 +1,13 @@
-# YouTube-to-Mega Archival System (YTM-Archiver)
+# YouTube Archival System with Rclone (YT-Archiver)
 
 ## Overview
-YTM-Archiver is a robust, autonomous Python script that continuously archives all videos from a specified YouTube channel to a chosen Mega.nz folder. It is designed for long-term, unattended operation and can be set up as a background service on Linux, Windows, or macOS.
+YT-Archiver is a robust, autonomous Python script that continuously archives all videos from a specified YouTube channel to your preferred cloud storage using Rclone. It is designed for long-term, unattended operation and can be set up as a background service on Linux, Windows, or macOS.
 
 ---
 
 ## Features
-- **Modular architecture** with separate components for YouTube, Mega.nz, and state management.
-- **Efficient state tracking** using a local SQLite database (no scanning of Mega folders).
+- **Modular architecture** with separate components for YouTube, Rclone integration, and state management.
+- **Efficient state tracking** using a local SQLite database (no scanning of remote folders).
 - **Configurable** via `config.ini` (no hardcoded credentials).
 - **Resilient**: Handles errors, retries with exponential backoff, and logs all actions.
 - **Efficient polling**: Fetches only recent videos after initial sync.
@@ -18,7 +18,7 @@ YTM-Archiver is a robust, autonomous Python script that continuously archives al
 
 ## Prerequisites
 - Python 3.8+
-- Mega.nz account
+- [Rclone](https://rclone.org/) installed and configured with your cloud storage provider
 - (Optional) YouTube Data API v3 key for improved reliability
 
 ---
@@ -34,7 +34,7 @@ cd YTM-Archiver
 ### 2. Install Dependencies
 
 **Install Python 3.10+ (if not already installed)**
-- Linux: `sudo apt install python3.10 python3.10-venv` _(Note: If python3.10 is not available in the default repositories, you can add the 'deadsnakes' PPA which contains multiple versions of python: `sudo add-apt-repository ppa:deadsnakes/ppa`)_
+- Linux: `sudo apt install python3.10 python3.10-venv`
 - macOS: `brew install python@3.10`
 - Windows: [Download from python.org](https://www.python.org/downloads/release/python-3100/)
 
@@ -54,17 +54,22 @@ source venv/bin/activate  # On Windows: venv\Scripts\activate
 pip install -r requirements.txt
 ```
 
-### 3. Configure the Archiver
-- Copy the template config and fill in your details:
-  ```sh
-  cp config.ini.template config.ini
-  ```
-- Edit `config.ini` and fill in:
-  - YouTube channel URL or ID
-  - (Optional) YouTube API key
-  - Mega.nz email and password
-  - Target Mega folder
-  - Polling interval (in minutes)
+### 4. Configure the Archiver
+1. Copy the template config:
+   ```sh
+   cp config.ini.template config.ini
+   ```
+2. Edit `config.ini` and configure:
+   - `[YouTube]` section:
+     - `channel_url`: YouTube channel URL or ID
+     - `youtube_api_key`: (Optional) YouTube API key for better reliability
+   - `[Rclone]` section:
+     - `remote_name`: Name of your rclone remote (default: 'mega')
+     - `remote_path`: Path on the remote storage (e.g., '/YouTubeBackups/ChannelName')
+   - `[Archiver]` section:
+     - `polling_interval`: How often to check for new videos (in minutes)
+     - `download_dir`: Local directory for temporary downloads
+     - `log_file`: Path to log file
 
 ### 4. First Run
 ```sh
@@ -117,8 +122,9 @@ python3 main.py
 ---
 
 ## Security & Best Practices
-- **Never share your config.ini** (contains credentials).
-- Use a dedicated Mega.nz account or app password for automation.
+- **Never share your config.ini**
+- Ensure your rclone config is properly secured (usually at `~/.config/rclone/rclone.conf`)
+- Use appropriate access controls for your cloud storage account
 - Set up the script as a service for maximum reliability.
 
 ---
