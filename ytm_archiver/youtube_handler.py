@@ -1,3 +1,4 @@
+import re
 import yt_dlp
 import logging
 import subprocess

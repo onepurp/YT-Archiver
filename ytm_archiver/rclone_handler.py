@@ -27,7 +27,8 @@ class RcloneHandler:
                 text=True,
                 check=True
             )
-            self.logger.debug(f"Rclone version: {result.stdout.split('\n')[0] if result.stdout else 'Unknown'}")
+            version = result.stdout.split('\n')[0] if result.stdout else 'Unknown'
+            self.logger.debug(f"Rclone version: {version}")
         except (subprocess.CalledProcessError, FileNotFoundError) as e:
             self.logger.error("Rclone is not installed or not in PATH. Please install rclone and ensure it's accessible.")
             raise RuntimeError("Rclone is not installed or not in PATH") from e
@@ -82,7 +83,8 @@ class RcloneHandler:
         base_path = self.remote_path.split(':', 1)[-1].lstrip('/')
         
         # Create the directory structure if it doesn't exist
-        mkdir_cmd = ['mkdir', '--parents', f"{self.remote_name}:{base_path}"]
+        # Note: --parents is not a valid flag in rclone, but mkdir will create parent directories by default
+        mkdir_cmd = ['mkdir', f"{self.remote_name}:{base_path}"]
         success, _ = self._run_rclone_command(mkdir_cmd)
         return success
 
