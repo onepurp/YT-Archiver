@@ -237,4 +237,4 @@ Contributions are welcome! Please feel free to submit a Pull Request.
 
 ## License
 
-MIT License - Feel free to use this code for any purpose.
+MIT License
